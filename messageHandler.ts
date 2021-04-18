@@ -1,5 +1,9 @@
 import config from "./config"
+<<<<<<< refs/remotes/origin/main
 import { Client, Message, PartialMessage } from "discord.js";
+=======
+import { Client, Message, PartialMessage, TextChannel } from "discord.js";
+>>>>>>> Bot v1.2.1
 import eBayApi from '@hendt/ebay-api';
 import getSymbolFromCurrency from 'currency-symbol-map'
 import { ContentLanguage } from "@hendt/ebay-api/lib/enums";
@@ -34,6 +38,7 @@ export default class MessageHandler {
 	static ebayURLRegex: RegExp = /(http|https)(:\/\/)(www\.ebay||ebay)\.([a-z]{2,3}||[a-z]{2,3}\.[a-z]{2,3})(\/itm)/i;
 
 	async handleMessage(msg: Message | PartialMessage, oldMsg?: Message | PartialMessage) {
+<<<<<<< refs/remotes/origin/main
 		if ((!msg.content!.toLowerCase().includes("ebay") && !msg.content!.toLowerCase().includes("amazon")) || msg.author.bot || (oldMsg && msg.content === oldMsg.content)) return;
 		const urls: string[] = msg.content!.match(MessageHandler.urlRegex) || [];
 		if (!urls.length) return;
@@ -41,6 +46,30 @@ export default class MessageHandler {
 		// Tf is this shit
 		if (urls[0].match(MessageHandler.ebayURLRegex)) this.ebayMessage(msg, urls);	
 		else if (new URL(urls[0]).host.match(/(www\.amazon||amazon)(\.[a-z]{2,3}){1,2}/i)) this.amazonMessage(msg, urls);
+=======
+		
+		if ((!msg.content!.toLowerCase().includes("ebay") && !msg.content!.toLowerCase().includes("amazon")) || msg.author.bot || (oldMsg && msg.content === oldMsg.content)) return;
+		const urls: string[] = msg.content!.match(MessageHandler.urlRegex) || [];
+		if (!urls.length) return;
+		if (!msg.guild.me.hasPermission("EMBED_LINKS") || (!msg.guild && !(msg.channel as unknown as TextChannel).permissionsFor(this.client.user.id).has("EMBED_LINKS"))) return msg.channel.send(":x: Error!\nI do not have permission to embed links in this channel. Please add this permission to my role and/or this channel to continue.")
+		
+		// Tf is this shit
+		try { 
+			if (urls[0].match(MessageHandler.ebayURLRegex)) await this.ebayMessage(msg, urls);	
+			else if (new URL(urls[0]).host.match(/(www\.amazon||amazon)(\.[a-z]{2,3}){1,2}/i)) await this.amazonMessage(msg, urls);
+		} catch {
+			return msg.channel.send({
+				embed: {
+					color: 0xFF0000,
+					title: ":x: Error!",
+					description: "An unexpected error has occurred",
+					footer: {
+						text: "Sorry about that",
+					}
+				}
+			})
+		}
+>>>>>>> Bot v1.2.1
 	}
 
 	async ebayMessage(msg: Message | PartialMessage, urls) {

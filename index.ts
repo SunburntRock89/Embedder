@@ -14,6 +14,25 @@ const client = new Client({ disableMentions: "everyone", ws: {
 const handler = new MessageHandler(client);
 
 client.on("ready", () => console.log(`Logged in as ${client.user?.tag}!`))
+<<<<<<< refs/remotes/origin/main
+=======
+client.on("guildCreate", guild => {
+	guild.owner.send({
+		embed: {
+			color: 0xeb9f1c,
+			title: ":wave: Hey there!",
+			description: "Thanks for inviting my bot! I hope it serves you well.",
+			fields: [{
+				name: "Setup:",
+				value: "Please ensure the bot has permission to embed links in any channels you intend to use it in."
+			}],
+			footer: {
+				text: "Have fun! -- SunburntRock89#7062"
+			}
+		}
+	}).catch(e => null);
+})
+>>>>>>> Bot v1.2.1
 client.on("message", async(msg: Message) => handler.handleMessage(msg));
 client.on("messageUpdate", async(oldMsg: Message | PartialMessage, newMsg: Message | PartialMessage) => handler.handleMessage(newMsg, oldMsg));
 
