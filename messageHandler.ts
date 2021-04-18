@@ -66,6 +66,7 @@ export default class MessageHandler {
 		const itemID = shortenedURL.slice(-12);
 
 		shortenedURL = `${shortenedURL.match(MessageHandler.ebayURLRegex)![0]}/${itemID}`;
+		// eslint-disable-next-line no-extra-parens
 		if (!msg.guild.me.hasPermission("MANAGE_MESSAGES") || (!msg.guild && !(msg.channel as unknown as TextChannel).permissionsFor(this.client.user.id).has("MANAGE_MESSAGES"))) msg.delete();
 		console.log(`Shortened message from ${msg.author.tag} to ${shortenedURL}`);
 
@@ -107,6 +108,7 @@ export default class MessageHandler {
 		const itemID = split[2].slice(-10);
 		const shortenedURL = `https://${split[1]}/dp/${itemID}`;
 
+		// eslint-disable-next-line no-extra-parens
 		if (!msg.guild.me.hasPermission("MANAGE_MESSAGES") || (!msg.guild && !(msg.channel as unknown as TextChannel).permissionsFor(this.client.user.id).has("MANAGE_MESSAGES"))) msg.delete();
 
 		const res = await get(originalURL)
