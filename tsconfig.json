@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"outDir": "./build/",
+		"sourceMap": true,
+		"target": "ES2019",
+		"module": "commonjs",
+		"moduleResolution": "Node",
+		"esModuleInterop": true
+	},
+	"files": [
+		"index.ts",
+		"config.ts"
+	]
+}
