@@ -40,11 +40,15 @@ export default class MessageHandler {
 		// eslint-disable-next-line no-extra-parens
 		if (!msg.guild.me.hasPermission("EMBED_LINKS") || (!msg.guild && !(msg.channel as unknown as TextChannel).permissionsFor(this.client.user.id).has("EMBED_LINKS"))) return msg.channel.send(":x: Error!\nI do not have permission to embed links in this channel. Please add this permission to my role and/or this channel to continue.");
 
+		// eslint-disable-next-line no-extra-parens
+		const canDelete: boolean = (msg.guild.me.hasPermission("MANAGE_MESSAGES") || (msg.guild && (msg.channel as unknown as TextChannel).permissionsFor(this.client.user.id).has("MANAGE_MESSAGES")));
+
 		// Tf is this shit
 		try {
-			if (urls[0].match(MessageHandler.ebayURLRegex)) await this.ebayMessage(msg, urls);
-			else if (new URL(urls[0]).host.match(/(www\.amazon||amazon)(\.[a-z]{2,3}){1,2}/i)) await this.amazonMessage(msg, urls);
-		} catch {
+			if (urls[0].match(MessageHandler.ebayURLRegex)) await this.ebayMessage(msg, urls, canDelete);
+			else if (new URL(urls[0]).host.match(/(www\.amazon||amazon)(\.[a-z]{2,3}){1,2}/i)) await this.amazonMessage(msg, urls, canDelete);
+		} catch (e) {
+			console.error(e);
 			return msg.channel.send({
 				embed: {
 					color: 0xFF0000,
@@ -58,7 +62,7 @@ export default class MessageHandler {
 		}
 	}
 
-	async ebayMessage(msg: Message | PartialMessage, urls: string[]): Promise<void> {
+	async ebayMessage(msg: Message | PartialMessage, urls: string[], canDelete: boolean): Promise<void> {
 		const originalURL: string = urls[0];
 		const split: string[] = urls[0].split("?");
 		let shortenedURL: string = split ? split[0] : originalURL;
@@ -66,13 +70,23 @@ export default class MessageHandler {
 		const itemID = shortenedURL.slice(-12);
 
 		shortenedURL = `${shortenedURL.match(MessageHandler.ebayURLRegex)![0]}/${itemID}`;
-		// eslint-disable-next-line no-extra-parens
-		if (!msg.guild.me.hasPermission("MANAGE_MESSAGES") || (!msg.guild && !(msg.channel as unknown as TextChannel).permissionsFor(this.client.user.id).has("MANAGE_MESSAGES"))) msg.delete();
+		if (canDelete) msg.delete();
 		console.log(`Shortened message from ${msg.author.tag} to ${shortenedURL}`);
 
-		const item = await this.ebay.buy.browse.getItemByLegacyId({
-			legacy_item_id: itemID,
-		});
+
+		let item;
+		try {
+			item = await this.ebay.buy.browse.getItemByLegacyId({
+				legacy_item_id: itemID,
+			});
+		} catch {
+			try {
+				item = (await this.ebay.buy.browse.getItemsByItemGroup(itemID).catch(null))?.items[0];
+			} catch {
+				msg.channel.send(canDelete ? msg.content.toLowerCase().replace(originalURL.toLowerCase(), `${shortenedURL}: Not found`) : "Item not found.");
+				return;
+			}
+		}
 
 		let price;
 		if (item.price.convertedFromCurrency) {
@@ -83,7 +97,7 @@ export default class MessageHandler {
 
 		const type = item.buyingOptions.includes("FIXED_PRICE") ? "BIN" : "Auction";
 
-		msg.channel.send(msg.content.toLowerCase().replace(originalURL.toLowerCase(), shortenedURL), { embed: {
+		msg.channel.send(canDelete ? msg.content.toLowerCase().replace(originalURL.toLowerCase(), shortenedURL) : "", { embed: {
 			color: 0xde3036,
 			author: {
 				name: item.title,
@@ -100,20 +114,27 @@ export default class MessageHandler {
 		} });
 	}
 
-	async amazonMessage(msg: Message | PartialMessage, urls: string[]): Promise<void> {
+	async amazonMessage(msg: Message | PartialMessage, urls: string[], canDelete: boolean): Promise<void> {
 		// Imagine reducing code rewriting
 		const originalURL: string = urls[0];
 
 		const split: string[] = originalURL.match(/((?:www\.)?amazon(?:\.[a-z]{2,3}){1,2}).*?(\/(?:dp|product)\/[A-Za-z0-9]{10}).*/);
+		if (!split || split.length < 3) return;
 		const itemID = split[2].slice(-10);
 		const shortenedURL = `https://${split[1]}/dp/${itemID}`;
 
 		// eslint-disable-next-line no-extra-parens
-		if (!msg.guild.me.hasPermission("MANAGE_MESSAGES") || (!msg.guild && !(msg.channel as unknown as TextChannel).permissionsFor(this.client.user.id).has("MANAGE_MESSAGES"))) msg.delete();
+		msg.delete();
 
-		const res = await get(originalURL)
-			.set("User-Agent", "sunburntrock89/embedBot")
-			.toText();
+		let res;
+		try {
+			res = await get(originalURL)
+				.set("User-Agent", "sunburntrock89/embedBot")
+				.toText();
+		} catch {
+			msg.channel.send(canDelete ? msg.content.toLowerCase().replace(originalURL.toLowerCase(), `${shortenedURL}: Not found`) : "Item not found.");
+			return;
+		}
 
 		const rootHtmlNode = parse(res.body as string);
 
@@ -125,7 +146,7 @@ export default class MessageHandler {
 		const firstBullet = rootHtmlNode.querySelector("div#feature-bullets > ul > li:not(.aok-hidden) > span.a-list-item")?.text.replace(/\n/gm, "") || null;
 		const imageURLNode = rootHtmlNode.querySelector("img#landingImage.a-dynamic-image");
 
-		msg.channel.send(msg.content.replace(originalURL, shortenedURL), { embed: {
+		msg.channel.send(canDelete ? msg.content.replace(originalURL, shortenedURL) : "", { embed: {
 			color: 0xf79400,
 			author: {
 				name: title,

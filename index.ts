@@ -18,11 +18,15 @@ client.on("guildCreate", guild => {
 	guild.owner.send({
 		embed: {
 			color: 0xeb9f1c,
-			title: ":wave: Hey there!",
+			title: "👋 Hey there!",
 			description: "Thanks for inviting my bot! I hope it serves you well.",
 			fields: [{
-				name: "Setup:",
+				name: "📋 Setup:",
 				value: "Please ensure the bot has permission to embed links in any channels you intend to use it in.",
+			},
+			{
+				name: "❓ Did you know?",
+				value: "If you give the bot permission to delete messages, it will automatically shorten links too!",
 			}],
 			footer: {
 				text: "Have fun! -- SunburntRock89#7062",
@@ -35,4 +39,4 @@ client.on("messageUpdate", async(oldMsg: Message | PartialMessage, newMsg: Messa
 
 client.login(config.token);
 
-// https://discord.com/api/oauth2/authorize?client_id=828678339950018630&permissions=2147871744&scope=bot
+// https://discord.com/api/oauth2/authorize?client_id=828678339950018630&permissions=387136&scope=bot

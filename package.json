@@ -1,6 +1,6 @@
 {
   "name": "embedder",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Shortens Amazon and eBay links and embeds them with fanciness!",
   "main": "build/index.js",
   "scripts": {
