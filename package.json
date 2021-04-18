@@ -1,6 +1,6 @@
 {
   "name": "ebayfixer",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Shortens Amazon and eBay links and embeds them with fanciness!",
   "main": "index.js",
   "scripts": {

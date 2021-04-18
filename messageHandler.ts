@@ -89,7 +89,7 @@ export default class MessageHandler {
 				url: shortenedURL,
 				icon_url: this.client.user.avatarURL(),
 			},
-			description: `${item.shortDescription}\n\nLocated in ${item.itemLocation.city}, ${item.itemLocation.postalCode.replace(/\*/gm, "")} - Condition: ${item.condition}`,
+			description: `${item.shortDescription ? `${item.shortDescription}\n\n` : ""}Located in ${item.itemLocation.city}, ${item.itemLocation.postalCode.replace(/\*/gm, "")} - Condition: ${item.condition}`,
 			image: {
 				url: item.image.imageUrl,
 			},
@@ -130,7 +130,7 @@ export default class MessageHandler {
 				url: shortenedURL,
 				icon_url: this.client.user.avatarURL(),
 			},
-			description: `${firstBullet}`,
+			description: `${firstBullet || ""}`,
 			image: {
 				url: imageURLNode.attrs.src,
 			},
