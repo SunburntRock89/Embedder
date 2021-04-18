@@ -1,12 +1,7 @@
 {
   "name": "ebayfixer",
-<<<<<<< refs/remotes/origin/main
-  "version": "1.0.0",
-  "description": "Removes long query strings from ebay links and gives a nice embed",
-=======
   "version": "1.2.1",
   "description": "Shortens Amazon and eBay links and embeds them with fanciness!",
->>>>>>> Bot v1.2.1
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

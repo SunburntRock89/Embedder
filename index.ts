@@ -14,8 +14,6 @@ const client = new Client({ disableMentions: "everyone", ws: {
 const handler = new MessageHandler(client);
 
 client.on("ready", () => console.log(`Logged in as ${client.user?.tag}!`))
-<<<<<<< refs/remotes/origin/main
-=======
 client.on("guildCreate", guild => {
 	guild.owner.send({
 		embed: {
@@ -32,7 +30,6 @@ client.on("guildCreate", guild => {
 		}
 	}).catch(e => null);
 })
->>>>>>> Bot v1.2.1
 client.on("message", async(msg: Message) => handler.handleMessage(msg));
 client.on("messageUpdate", async(oldMsg: Message | PartialMessage, newMsg: Message | PartialMessage) => handler.handleMessage(newMsg, oldMsg));
 
