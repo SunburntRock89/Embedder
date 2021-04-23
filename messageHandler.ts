@@ -97,6 +97,29 @@ export default class MessageHandler {
 
 		const type = item.buyingOptions.includes("FIXED_PRICE") ? "BIN" : "Auction";
 
+		// const description = `${item.itemLocation.city ? `Located in ${item.itemLocation?.city}, ${item.itemLocation?.postalCode?.replace(/\*/gm, "")} -` : ""} Condition: ${item.condition}`,
+		let description = `${item.shortDescription ? `${item.shortDescription}\n\n` : ""}`;
+		let city: boolean;
+		if (item.itemLocation) {
+			if (item.itemLocation.city) {
+				city = true;
+				description += `Located in ${item.itemLocation.city}`;
+			}
+			if (item.itemLocation.postalCode) {
+				if (city) {
+					description += `, ${item.itemLocation?.postalCode?.replace(/\*/gm, "").toUpperCase()}`;
+				} else {
+					city = true;
+					description += `Located in ${item.itemLocation.postalCode.toUpperCase()} `;
+				}
+			}
+		}
+		if (city) {
+			description += `- Condition: ${item.condition}`;
+		} else {
+			description += `Condition: ${item.condition}`;
+		}
+
 		msg.channel.send(canDelete ? msg.content.toLowerCase().replace(originalURL.toLowerCase(), shortenedURL) : "", { embed: {
 			color: 0xde3036,
 			author: {
@@ -104,7 +127,7 @@ export default class MessageHandler {
 				url: shortenedURL,
 				icon_url: this.client.user.avatarURL(),
 			},
-			description: `${item.shortDescription ? `${item.shortDescription}\n\n` : ""}Located in ${item.itemLocation.city}, ${item.itemLocation.postalCode.replace(/\*/gm, "")} - Condition: ${item.condition}`,
+			description,
 			image: {
 				url: item.image.imageUrl,
 			},
