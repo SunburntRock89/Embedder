@@ -1,5 +1,5 @@
 import config from "./config";
-import { Client, Message, PartialMessage, TextChannel } from "discord.js";
+import { Client, Message, MessageReaction, PartialMessage, TextChannel, User } from "discord.js";
 import eBayApi from "@hendt/ebay-api";
 import getSymbolFromCurrency from "currency-symbol-map";
 import { ContentLanguage } from "@hendt/ebay-api/lib/enums";
@@ -97,17 +97,16 @@ export default class MessageHandler {
 
 		const type = item.buyingOptions.includes("FIXED_PRICE") ? "BIN" : "Auction";
 
-		// const description = `${item.itemLocation.city ? `Located in ${item.itemLocation?.city}, ${item.itemLocation?.postalCode?.replace(/\*/gm, "")} -` : ""} Condition: ${item.condition}`,
 		let description = `${item.shortDescription ? `${item.shortDescription}\n\n` : ""}`;
 		let city: boolean;
 		if (item.itemLocation) {
 			if (item.itemLocation.city) {
 				city = true;
-				description += `Located in ${item.itemLocation.city}`;
+				description += `Located in ${item.itemLocation.city}${item.itemLocation.postalCode ? ", " : " "}`;
 			}
 			if (item.itemLocation.postalCode) {
 				if (city) {
-					description += `, ${item.itemLocation?.postalCode?.replace(/\*/gm, "").toUpperCase()}`;
+					description += `${item.itemLocation?.postalCode?.replace(/\*/gm, "").toUpperCase()}`;
 				} else {
 					city = true;
 					description += `Located in ${item.itemLocation.postalCode.toUpperCase()} `;
@@ -120,7 +119,7 @@ export default class MessageHandler {
 			description += `Condition: ${item.condition}`;
 		}
 
-		msg.channel.send(canDelete ? msg.content.toLowerCase().replace(originalURL.toLowerCase(), shortenedURL) : "", { embed: {
+		const newmsg = await msg.channel.send(canDelete ? msg.content.toLowerCase().replace(originalURL.toLowerCase(), shortenedURL) : "", { embed: {
 			color: 0xde3036,
 			author: {
 				name: item.title,
@@ -135,6 +134,8 @@ export default class MessageHandler {
 				text: `${price} ${type} - Requested by ${msg.author.tag}`,
 			},
 		} });
+
+		this.reactionDelete(newmsg, msg.author.id);
 	}
 
 	async amazonMessage(msg: Message | PartialMessage, urls: string[], canDelete: boolean): Promise<void> {
@@ -169,7 +170,7 @@ export default class MessageHandler {
 		const firstBullet = rootHtmlNode.querySelector("div#feature-bullets > ul > li:not(.aok-hidden) > span.a-list-item")?.text.replace(/\n/gm, "") || null;
 		const imageURLNode = rootHtmlNode.querySelector("img#landingImage.a-dynamic-image");
 
-		msg.channel.send(canDelete ? msg.content.replace(originalURL, shortenedURL) : "", { embed: {
+		const newmsg = await msg.channel.send(canDelete ? msg.content.replace(originalURL, shortenedURL) : "", { embed: {
 			color: 0xf79400,
 			author: {
 				name: title,
@@ -184,5 +185,20 @@ export default class MessageHandler {
 				text: `${price ? `${price} - ` : ""}Requested by ${msg.author.tag}`,
 			},
 		} });
+
+		this.reactionDelete(newmsg, msg.author.id);
+	}
+
+	async reactionDelete(msg: Message, authorID: string): Promise<void> {
+		// eslint-disable-next-line no-extra-parens
+		if (!(msg.guild.me.hasPermission("MANAGE_MESSAGES") || (msg.guild && (msg.channel as unknown as TextChannel).permissionsFor(this.client.user.id).has("MANAGE_MESSAGES")))) return;
+		// eslint-disable-next-line no-extra-parens
+		if (!msg.guild.me.hasPermission("ADD_REACTIONS") || (!msg.guild && !(msg.channel as unknown as TextChannel).permissionsFor(this.client.user.id).has("ADD_REACTIONS"))) return;
+
+		msg.react("❌");
+		msg.awaitReactions((reaction: MessageReaction, user: User) => user.id === authorID && reaction.emoji.toString() === "❌", { max: 1 })
+			.then(() => {
+				msg.delete();
+			}).catch(() => null);
 	}
 }
