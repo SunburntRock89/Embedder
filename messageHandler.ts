@@ -153,7 +153,7 @@ export default class MessageHandler {
 		let res;
 		try {
 			res = await get(shortenedURL)
-				.set("User-Agent", "sunburntrock89/embedBot")
+				.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0")
 				.toText();
 		} catch (e) {
 			msg.channel.send(canDelete ? msg.content.toLowerCase().replace(originalURL.toLowerCase(), `${shortenedURL}: Not found`) : "Item not found.");
