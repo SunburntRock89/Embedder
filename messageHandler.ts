@@ -208,6 +208,8 @@ export default class MessageHandler {
 		const split: string[] = originalURL.match(MessageHandler.shpockURLRegex);
 		const itemID = split[1];
 
+		if (canDelete) msg.delete();
+
 		const scraperRes = await this.metascraper({
 			url: originalURL,
 			html: (await get(`https://www.shpock.com/en-gb/i/${itemID}`)).body,
@@ -220,6 +222,9 @@ export default class MessageHandler {
 		if (scraperRes.title.match(/in/gi)?.length > 1) {
 			let titleSplit = scraperRes.title.split(" in ");
 			const correctOne = titleSplit[titleSplit.length - 1];
+
+			titleSplit.length -= 1;
+			title = titleSplit.join(" in ");
 
 			titleSplit = correctOne.split(" for ");
 			price = titleSplit[1];
@@ -276,9 +281,11 @@ export default class MessageHandler {
 		if (!msg.guild.me.hasPermission("ADD_REACTIONS") || (!msg.guild && !(msg.channel as unknown as TextChannel).permissionsFor(this.client.user.id).has("ADD_REACTIONS"))) return;
 
 		const reaction = await msg.react("❌");
-		msg.awaitReactions((newReaction: MessageReaction, user: User) => user.id === authorID && newReaction.emoji.toString() === "❌", { max: 1, time: 30 * 1000 })
-			.then(() => {
-				msg.delete();
-			}).catch(() => reaction.remove());
+		msg.awaitReactions((newReaction: MessageReaction, user: User) => user.id === authorID && newReaction.emoji.toString() === "❌", { max: 1, time: 45 * 1000 })
+			.then(collected => {
+				if (collected.first().emoji.toString() == "❌" && collected.first().users.resolveID(msg.author.id)) {
+					msg.delete();
+				}
+			}).catch(() => reaction.remove().catch(() => null));
 	}
 }
