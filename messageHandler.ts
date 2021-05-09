@@ -210,7 +210,7 @@ export default class MessageHandler {
 
 		const scraperRes = await this.metascraper({
 			url: originalURL,
-			html: (await get(originalURL)).body,
+			html: (await get(`https://www.shpock.com/en-gb/i/${itemID}`)).body,
 		});
 
 		scraperRes.title = scraperRes.title.replace(" for sale | Shpock", "");
