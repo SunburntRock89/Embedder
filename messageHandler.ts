@@ -10,6 +10,7 @@ import metascraper, { Scraper } from "metascraper";
 import msDescription from "metascraper-description";
 import msImage from "metascraper-image";
 import msTitle from "metascraper-title";
+
 export default class MessageHandler {
 	constructor(client: Client) {
 		this.client = client;
@@ -41,7 +42,7 @@ export default class MessageHandler {
 	client: Client;
 	metascraper: Scraper
 	static urlRegex: string = urlRegex({ strict: true })
-	static ebayURLRegex = /(http|https)(:\/\/)(www\.ebay||ebay)\.([a-z]{2,3}||[a-z]{2,3}\.[a-z]{2,3})(\/itm)/i;
+	static ebayURLRegex = /(?:http|https)(?::\/\/)(?:www\.){0,1}ebay\.([a-z]{2,3}||[a-z]{2,3}\.[a-z]{2,3})(?:\/itm|\/i)\/(\d{12})/i;
 	static amazonRegex = /((?:www\.)?amazon(?:\.[a-z]{2,3}){1,2}).*?(?:\/(?:dp|product))\/([A-Za-z0-9]{10})/i;
 	static shpockURLRegex = /(?:http|https)(?::\/\/)(?:www\.shpock||shpock).com(?:\/\w{2}-\w{2}){0,1}\/i\/(.{16})/i;
 
@@ -77,15 +78,13 @@ export default class MessageHandler {
 
 	async ebayMessage(msg: Message | PartialMessage, urls: string[], canDelete: boolean): Promise<void> {
 		const originalURL: string = urls[0];
-		const split: string[] = urls[0].split("?");
-		let shortenedURL: string = split ? split[0] : originalURL;
-		if (shortenedURL.endsWith("/")) shortenedURL = shortenedURL.slice(0, -1);
-		const itemID = shortenedURL.slice(-12);
+		const split = originalURL.split(MessageHandler.ebayURLRegex);
 
-		shortenedURL = `${shortenedURL.match(MessageHandler.ebayURLRegex)![0]}/${itemID}`;
+		const itemID = split[2];
+
+		const shortenedURL = `https://ebay.${split[1]}/i/${itemID}`;
 		if (canDelete) msg.delete();
 		console.log(`Shortened message from ${msg.author.tag} to ${shortenedURL}`);
-
 
 		let item;
 		try {
@@ -159,6 +158,7 @@ export default class MessageHandler {
 		if (!split || split.length < 2) return;
 		const itemID = split[2];
 		const shortenedURL = `https://${split[1]}/dp/${itemID}`;
+		console.log(`Shortened message from ${msg.author.tag} to ${shortenedURL}`);
 
 		// eslint-disable-next-line no-extra-parens
 		msg.delete();
@@ -251,7 +251,7 @@ export default class MessageHandler {
 		}
 
 		const shortenedURL = `https://shpock.com/i/${itemID}`;
-
+		console.log(`Shortened message from ${msg.author.tag} to ${shortenedURL}`);
 		let description = `${scraperRes.description}...`;
 		if (location) description += `\n\nLocated in ${location}`;
 
