@@ -38,6 +38,7 @@ export default class InteractionHandler {
 
 		if (interaction.user.tag !== userTag) {
 			interaction.reply({ content: "You didn't post this!", ephemeral: true });
+			return;
 		}
 
 		const itemID = interaction.message.content.slice(-12);
@@ -86,6 +87,7 @@ export default class InteractionHandler {
 
 		if (interaction.user.tag !== userTag) {
 			interaction.reply({ content: "You didn't post this!", ephemeral: true });
+			return;
 		}
 
 		const itemID = interaction.message.content.slice(-12);
