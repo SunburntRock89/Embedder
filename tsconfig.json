@@ -7,8 +7,7 @@
 		"moduleResolution": "Node",
 		"esModuleInterop": true
 	},
-	"files": [
-		"index.ts",
-		"config.ts"
+	"include": [
+		"./src/*.ts"
 	]
 }

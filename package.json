@@ -13,7 +13,7 @@
     "@typescript-eslint/parser": "^4.22.0",
     "chainfetch": "^1.2.2",
     "currency-symbol-map": "^5.0.1",
-    "discord.js": "^12.5.3",
+    "discord.js": "^13.0.0-dev.d433fe8.1626004976",
     "eslint": "^7.24.0",
     "metascraper": "^5.21.7",
     "metascraper-description": "^5.21.7",
@@ -21,6 +21,7 @@
     "metascraper-title": "^5.21.7",
     "node-fetch": "^2.6.1",
     "node-html-parser": "^3.1.5",
+    "re2": "^1.16.0",
     "url-regex-safe": "^2.0.2"
   },
   "devDependencies": {
