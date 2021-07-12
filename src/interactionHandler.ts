@@ -54,6 +54,9 @@ export default class InteractionHandler {
 			return;
 		}
 
+		const split = interaction.message.embeds[0].footer.text.split(" - ");
+		const userTag = split[split.length - 1].replace("Requested by ", "");
+
 		msg.edit({
 			content: msg.content,
 			embeds: [{
@@ -68,7 +71,7 @@ export default class InteractionHandler {
 					url: item.allImages[nextIndex],
 				},
 				footer: {
-					text: `${item.price} ${item.type} - Requested by ${msg.author.tag}`,
+					text: `${item.price} ${item.type} - Requested by ${userTag}`,
 				},
 			}],
 			components: msg.components,
@@ -103,6 +106,9 @@ export default class InteractionHandler {
 			return;
 		}
 
+		const split = interaction.message.embeds[0].footer.text.split(" - ");
+		const userTag = split[split.length - 1].replace("Requested by ", "");
+
 		msg.edit({
 			content: msg.content,
 			embeds: [{
@@ -117,7 +123,7 @@ export default class InteractionHandler {
 					url: item.allImages[nextIndex],
 				},
 				footer: {
-					text: `${item.price} ${item.type} - Requested by ${msg.author.tag}`,
+					text: `${item.price} ${item.type} - Requested by ${userTag}`,
 				},
 			}],
 			components: msg.components,
