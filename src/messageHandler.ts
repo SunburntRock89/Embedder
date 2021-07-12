@@ -24,7 +24,6 @@ interface eBayItem {
 	itemLocation: string
 	condition: string,
 	type: string,
-	footer: string,
 }
 
 export default class MessageHandler {
@@ -50,6 +49,10 @@ export default class MessageHandler {
 			msImage(),
 			msTitle(),
 		]);
+
+		setInterval(() => {
+			this.ebayItemsCache.clear();
+		}, 1 * 60 * 60 * 1000);
 	}
 
 	accessToken = "";
@@ -185,7 +188,6 @@ export default class MessageHandler {
 				itemLocation: item.itemLocation,
 				condition: item.condition,
 				type,
-				footer: `${price} ${type} - Requested by ${msg.author.tag}`,
 			});
 		}
 
