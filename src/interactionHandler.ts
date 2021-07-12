@@ -44,11 +44,6 @@ export default class InteractionHandler {
 		const currentIndex = item.allImages.indexOf(msg.embeds[0].image.url);
 		const nextIndex = currentIndex + 1;
 
-		// if (item.allImages.length > 2 && nextIndex == 1) {
-		// 	interaction.reply("You")
-		// 	return;
-		// }
-
 		if (nextIndex === item.allImages.length) {
 			interaction.reply({ content: "You can't go forward any further!", ephemeral: true });
 			return;
@@ -91,15 +86,6 @@ export default class InteractionHandler {
 		const msg = await interaction.channel.messages.fetch(interaction.message.id);
 		const currentIndex = item.allImages.indexOf(msg.embeds[0].image.url);
 		const nextIndex = currentIndex - 1;
-
-		// if (nextIndex === item.allImages.length - 1) {
-		// 	msg.components[0].components.unshift(1, 0, new MessageButton({
-		// 		emoji: "➡️",
-		// 		label: "Next",
-		// 		style: "SECONDARY",
-		// 		customId: "next",
-		// 	}));
-		// }
 
 		if (currentIndex === 0) {
 			interaction.reply({ content: "You can't go back any further!", ephemeral: true });

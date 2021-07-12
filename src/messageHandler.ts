@@ -197,16 +197,16 @@ export default class MessageHandler {
 		if (canDelete) {
 			if (allImages.length > 1) {
 				messageComponents.push(new MessageButton({
-					emoji: "➡️",
-					label: "Next",
-					style: "SECONDARY",
-					customId: "next",
-				}));
-				messageComponents.push(new MessageButton({
 					emoji: "⬅️",
 					label: "Previous",
 					style: "SECONDARY",
 					customId: "previous",
+				}));
+				messageComponents.push(new MessageButton({
+					emoji: "➡️",
+					label: "Next",
+					style: "SECONDARY",
+					customId: "next",
 				}));
 			}
 			messageComponents.push(new MessageButton({
