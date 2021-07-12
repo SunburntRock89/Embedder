@@ -33,6 +33,13 @@ export default class InteractionHandler {
 	}
 
 	async next(interaction: MessageComponentInteraction): Promise<void> {
+		const split = interaction.message.embeds[0].footer.text.split(" - ");
+		const userTag = split[split.length - 1].replace("Requested by ", "");
+
+		if (interaction.user.tag !== userTag) {
+			interaction.reply({ content: "You didn't post this!", ephemeral: true });
+		}
+
 		const itemID = interaction.message.content.slice(-12);
 		const item = this.MessageHandler.ebayItemsCache.get(itemID);
 		if (!item) {
@@ -49,8 +56,6 @@ export default class InteractionHandler {
 			return;
 		}
 
-		const split = interaction.message.embeds[0].footer.text.split(" - ");
-		const userTag = split[split.length - 1].replace("Requested by ", "");
 
 		msg.edit({
 			content: msg.content,
@@ -76,6 +81,13 @@ export default class InteractionHandler {
 	}
 
 	async previous(interaction: MessageComponentInteraction): Promise<void> {
+		const split = interaction.message.embeds[0].footer.text.split(" - ");
+		const userTag = split[split.length - 1].replace("Requested by ", "");
+
+		if (interaction.user.tag !== userTag) {
+			interaction.reply({ content: "You didn't post this!", ephemeral: true });
+		}
+
 		const itemID = interaction.message.content.slice(-12);
 		const item = this.MessageHandler.ebayItemsCache.get(itemID);
 		if (!item) {
@@ -91,9 +103,6 @@ export default class InteractionHandler {
 			interaction.reply({ content: "You can't go back any further!", ephemeral: true });
 			return;
 		}
-
-		const split = interaction.message.embeds[0].footer.text.split(" - ");
-		const userTag = split[split.length - 1].replace("Requested by ", "");
 
 		msg.edit({
 			content: msg.content,
