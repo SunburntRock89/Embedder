@@ -136,8 +136,13 @@ export default class MessageHandler {
 					item.image = item.primaryItemGroup.itemGroupImage;
 					item.additionalImages = item.primaryItemGroup.itemGroupAdditionalImages;
 				} catch {
-					msg.channel.send(canDelete ? msg.content.toLowerCase().replace(originalURL.toLowerCase(), `${shortenedURL}: Not found`) : "Item not found.");
-					return;
+					try {
+						item = await this.ebay.buy.browse.getItem("274869308844");
+						console.log(item);
+					} catch {
+						msg.channel.send(canDelete ? msg.content.toLowerCase().replace(originalURL.toLowerCase(), `${shortenedURL}: Not found`) : "Item not found.");
+						return;
+					}
 				}
 			}
 
@@ -159,7 +164,7 @@ export default class MessageHandler {
 				}
 				if (item.itemLocation.postalCode) {
 					if (city) {
-						description += `${item.itemLocation?.postalCode?.replace(/\*/gm, "").toUpperCase()}`;
+						description += `${item.itemLocation?.postalCode?.replace(/\*/gm, "").toUpperCase()} `;
 					} else {
 						city = true;
 						description += `Located in ${item.itemLocation.postalCode.toUpperCase()} `;
