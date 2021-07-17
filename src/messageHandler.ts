@@ -153,7 +153,20 @@ export default class MessageHandler {
 				price = `${getSymbolFromCurrency(item.price.currency) || item.price.currency}${item.price.value}`;
 			}
 
-			type = item.buyingOptions.includes("FIXED_PRICE") ? "BIN" : "Auction";
+			switch (item.buyingOptions) {
+				case "FIXED_PRICE": {
+					type = "BIN";
+					break;
+				}
+				case "AUCTION": {
+					type = "Auction";
+					break;
+				}
+				default: {
+					type = "Classified Ad";
+					break;
+				}
+			}
 
 			description = `${item.shortDescription ? `${item.shortDescription}\n\n` : ""}`;
 			let city: boolean;
