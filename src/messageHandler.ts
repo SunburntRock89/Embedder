@@ -153,6 +153,7 @@ export default class MessageHandler {
 				price = `${getSymbolFromCurrency(item.price.currency) || item.price.currency}${item.price.value}`;
 			}
 
+			if (item.buyingOptions instanceof Array) item.buyingOptions = item.buyingOptions[0];
 			switch (item.buyingOptions) {
 				case "FIXED_PRICE": {
 					type = "BIN";
