@@ -138,7 +138,6 @@ export default class MessageHandler {
 				} catch {
 					try {
 						item = await this.ebay.buy.browse.getItem("274869308844");
-						console.log(item);
 					} catch {
 						msg.channel.send(canDelete ? msg.content.toLowerCase().replace(originalURL.toLowerCase(), `${shortenedURL}: Not found`) : "Item not found.");
 						return;
@@ -193,7 +192,7 @@ export default class MessageHandler {
 
 			allImages = [];
 			allImages.push(item.image.imageUrl);
-			allImages = allImages.concat(item.additionalImages.map(i => i.imageUrl));
+			if (item.additionalImages) allImages = allImages.concat(item.additionalImages.map(i => i.imageUrl));
 
 			this.ebayItemsCache.set(itemID, {
 				title: item.title,
