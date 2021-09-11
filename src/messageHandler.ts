@@ -82,6 +82,7 @@ export default class MessageHandler {
 		const canDelete: boolean = (msg.guild.me.permissions.has("MANAGE_MESSAGES") || (msg.guild && (msg.channel as unknown as TextChannel).permissionsFor(this.client.user.id).has("MANAGE_MESSAGES")));
 
 		// Tf is this shit
+		msg.content = msg.content.replace(/(@everyone|@here)/gi, "");
 		try {
 			if (MessageHandler.ebayURLRegex.match(urls[0])) await this.ebayMessage(msg, urls, canDelete);
 			else if (MessageHandler.amazonURLRegex.match(urls[0])) await this.amazonMessage(msg, urls, canDelete);
@@ -219,6 +220,7 @@ export default class MessageHandler {
 					label: "Previous",
 					style: "SECONDARY",
 					customId: "previous",
+					disabled: true,
 				}));
 				messageComponents.push(new MessageButton({
 					emoji: "➡️",
