@@ -88,10 +88,10 @@ export default class MessageHandler {
 			if (matches) return await this.ebayMessage(msg, urls, canDelete, matches);
 
 			matches = MessageHandler.amazonURLRegex.match(urls[0]);
-			if (matches) return await this.ebayMessage(msg, urls, canDelete, matches);
+			if (matches) return await this.amazonMessage(msg, urls, canDelete, matches);
 
 			matches = MessageHandler.shpockURLRegex.match(urls[0]);
-			if (matches) return await this.ebayMessage(msg, urls, canDelete, matches);
+			if (matches) return await this.shpockMessage(msg, urls, canDelete, matches);
 		} catch (e) {
 			console.error(e);
 			msg.channel.send({
@@ -269,10 +269,9 @@ export default class MessageHandler {
 		// Imagine reducing code rewriting
 		const originalURL: string = urls[0];
 
-		const split: string[] = MessageHandler.amazonURLRegex.match(originalURL);
-		if (!split || split.length < 2) return;
-		const itemID = split[2];
-		const shortenedURL = `https://${split[1]}/dp/${itemID}`;
+		const itemID = matches[2];
+		const shortenedURL = `https://${matches[1]}/dp/${itemID}`;
+		console.log(shortenedURL);
 		console.log(`Shortened message from ${msg.author.tag} to ${shortenedURL}`);
 
 		let res;
