@@ -61,7 +61,7 @@ export default class MessageHandler {
 	client: Client;
 	metascraper: Scraper
 	static urlRegex = new RE2(urlRegex({ strict: true }));
-	static ebayURLRegex = new RE2(/(http|https)(:\/\/)(www\.ebay||ebay)\.([a-z]{2,3}||[a-z]{2,3}\.[a-z]{2,3})(\/itm|\/i)/i);
+	static ebayURLRegex = new RE2(/(?:http|https)(?::\/\/)(?:www\.ebay||ebay)\.([a-z]{2,3}||[a-z]{2,3}\.[a-z]{2,3})\/?(?:\/itm|\/i)(?:.)*?([0-9]{12})/i);
 	static amazonURLRegex = new RE2(/((?:www\.)?amazon(?:\.[a-z]{2,3}){1,2}).*?(?:\/(?:dp|product))\/([A-Za-z0-9]{10})/i);
 	static shpockURLRegex = new RE2(/(?:http|https)(?::\/\/)(?:www\.shpock||shpock).com(?:\/\w{2}-\w{2}){0,1}\/i\/(.{16})/i);
 	static ebayTLDRegex = new RE2(/(?:http|https)(?::\/\/)(?:www\.){0,1}ebay\.([a-z]{2,3}||[a-z]{2,3}\.[a-z]{2,3})\//i);
@@ -84,9 +84,14 @@ export default class MessageHandler {
 		// Tf is this shit
 		msg.content = msg.content.replace(/(@everyone|@here)/gi, "");
 		try {
-			if (MessageHandler.ebayURLRegex.match(urls[0])) await this.ebayMessage(msg, urls, canDelete);
-			else if (MessageHandler.amazonURLRegex.match(urls[0])) await this.amazonMessage(msg, urls, canDelete);
-			else if (MessageHandler.shpockURLRegex.match(urls[0])) await this.shpockMessage(msg, urls, canDelete);
+			let matches = MessageHandler.ebayURLRegex.match(urls[0]);
+			if (matches) return await this.ebayMessage(msg, urls, canDelete, matches);
+
+			matches = MessageHandler.amazonURLRegex.match(urls[0]);
+			if (matches) return await this.ebayMessage(msg, urls, canDelete, matches);
+
+			matches = MessageHandler.shpockURLRegex.match(urls[0]);
+			if (matches) return await this.ebayMessage(msg, urls, canDelete, matches);
 		} catch (e) {
 			console.error(e);
 			msg.channel.send({
@@ -103,17 +108,13 @@ export default class MessageHandler {
 		}
 	}
 
-	async ebayMessage(msg: Message | PartialMessage, urls: string[], canDelete: boolean): Promise<void> {
+	async ebayMessage(msg: Message | PartialMessage, urls: string[], canDelete: boolean, matches: string[]): Promise<void> {
 		const originalURL: string = urls[0];
 
-		const split: string[] = urls[0].split("?");
-		let shortenedURL: string = split ? split[0] : originalURL;
-		if (shortenedURL.endsWith("/")) shortenedURL = shortenedURL.slice(0, -1);
-		const itemID = shortenedURL.slice(-12);
+		const tld = matches[1];
+		const itemID = matches[2];
 
-		const tld = MessageHandler.ebayTLDRegex.match(originalURL)[1];
-
-		shortenedURL = `https://ebay.${tld}/i/${itemID}`;
+		const shortenedURL = `https://ebay.${tld}/i/${itemID}`;
 		if (canDelete) msg.delete();
 		console.log(`Shortened message from ${msg.author.tag} to ${shortenedURL}`);
 
@@ -264,7 +265,7 @@ export default class MessageHandler {
 		// this.reactionDelete(newmsg, msg.author.id);
 	}
 
-	async amazonMessage(msg: Message | PartialMessage, urls: string[], canDelete: boolean): Promise<void> {
+	async amazonMessage(msg: Message | PartialMessage, urls: string[], canDelete: boolean, matches: string[]): Promise<void> {
 		// Imagine reducing code rewriting
 		const originalURL: string = urls[0];
 
@@ -274,18 +275,16 @@ export default class MessageHandler {
 		const shortenedURL = `https://${split[1]}/dp/${itemID}`;
 		console.log(`Shortened message from ${msg.author.tag} to ${shortenedURL}`);
 
-		// eslint-disable-next-line no-extra-parens
-		msg.delete();
-
 		let res;
 		try {
 			res = await get(shortenedURL)
 				.set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0")
 				.toText();
 		} catch (e) {
-			msg.channel.send(canDelete ? msg.content.toLowerCase().replace(originalURL.toLowerCase(), `${shortenedURL}: Not found`) : "Item not found.");
+			msg.channel.send("Item not found: Unable to contact Amazon.");
 			return;
 		}
+		msg.delete();
 
 		const rootHtmlNode = parse(res.body as string);
 
@@ -318,7 +317,7 @@ export default class MessageHandler {
 		this.reactionDelete(newmsg, msg.author.id);
 	}
 
-	async shpockMessage(msg: Message | PartialMessage, urls: string[], canDelete: boolean): Promise<void> {
+	async shpockMessage(msg: Message | PartialMessage, urls: string[], canDelete: boolean, matches: string[]): Promise<void> {
 		const originalURL: string = urls[0];
 
 		const split: string[] = MessageHandler.shpockURLRegex.match(originalURL);

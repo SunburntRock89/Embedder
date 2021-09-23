@@ -1,4 +1,4 @@
-import { Interaction, MessageComponentInteraction, Client } from "discord.js";
+import { Interaction, MessageComponentInteraction, Client, Message } from "discord.js";
 import mh from "./messageHandler";
 
 export default class InteractionHandler {
@@ -48,15 +48,14 @@ export default class InteractionHandler {
 			return;
 		}
 
-		const msg = await interaction.channel.messages.fetch(interaction.message.id);
+		const msg = interaction.message as Message;
 		const currentIndex = item.allImages.indexOf(msg.embeds[0].image.url);
 		const nextIndex = currentIndex + 1;
 
-		if (nextIndex === item.allImages.length) {
-			interaction.reply({ content: "You can't go forward any further!", ephemeral: true });
-			return;
-		}
-
+		// If the next image is the last image, disable the next button
+		if (nextIndex === item.allImages.length - 1) this.updateButton("next", msg, true);
+		// If we're on the first image, enable the back button as we're moving to second
+		if (currentIndex == 0) this.updateButton("previous", msg, false);
 
 		msg.edit({
 			content: msg.content,
@@ -101,9 +100,13 @@ export default class InteractionHandler {
 		const currentIndex = item.allImages.indexOf(msg.embeds[0].image.url);
 		const nextIndex = currentIndex - 1;
 
-		if (currentIndex === 0) {
-			interaction.reply({ content: "You can't go back any further!", ephemeral: true });
-			return;
+		// If we're going to the first image, disable previous button
+		if (nextIndex === 0) {
+			this.updateButton("previous", msg, true);
+		}
+		// Otherwise if we're currently on the last image, reenable the forward button
+		if (currentIndex == item.allImages.length - 1) {
+			this.updateButton("next", msg, false);
 		}
 
 		msg.edit({
@@ -138,5 +141,12 @@ export default class InteractionHandler {
 			await (await interaction.channel.messages.fetch(interaction.message.id)).delete();
 			interaction.deferUpdate();
 		}
+	}
+
+	updateButton(id: string, msg: Message, disabled: boolean): void {
+		const buttonIndex = msg.components[0].components.indexOf(msg.components[0].components.find(c => c.customId === id));
+		const button = msg.components[0].components[buttonIndex];
+		button.disabled = disabled;
+		msg.components[0].spliceComponents(buttonIndex, 1, button);
 	}
 }
